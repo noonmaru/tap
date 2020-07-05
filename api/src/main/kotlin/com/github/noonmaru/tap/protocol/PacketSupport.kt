@@ -18,10 +18,10 @@ package com.github.noonmaru.tap.protocol
 
 import com.comphenix.protocol.PacketType
 import com.comphenix.protocol.events.PacketContainer
+import com.comphenix.protocol.utility.MinecraftVersion
 import com.comphenix.protocol.wrappers.EnumWrappers
 import com.comphenix.protocol.wrappers.WrappedDataWatcher
 import com.github.noonmaru.tap.fake.createFakeEntity
-import com.github.noonmaru.tap.loader.LibraryLoader
 import org.bukkit.FireworkEffect
 import org.bukkit.Location
 import org.bukkit.entity.*
@@ -34,6 +34,8 @@ import java.util.*
 val EntityPacket = EntityPacketSupport()
 
 val EffectPacket = EffectPacketSupport()
+
+private val NETHER_UPDATE = MinecraftVersion("1.16")
 
 class EntityPacketSupport {
 
@@ -83,43 +85,51 @@ class EntityPacketSupport {
     }
 
     fun equipment(entityId: Int, slot: EquipmentSlot, item: ItemStack): PacketContainer {
-        return PacketContainer(PacketType.Play.Server.ENTITY_EQUIPMENT).apply {
-            integers
-                .write(0, entityId)
-            itemSlots
-                .write(0, slot.convertToItemSlot())
-            itemModifier
-                .write(0, item)
+        if (MinecraftVersion.atOrAbove(NETHER_UPDATE)) {
+            throw UnsupportedOperationException("ProtocolLib 4.6.0 in development")
+        } else {
+            return PacketContainer(PacketType.Play.Server.ENTITY_EQUIPMENT).apply {
+                integers
+                    .write(0, entityId)
+                itemSlots
+                    .write(0, slot.convertToItemSlot())
+                itemModifier
+                    .write(0, item)
+            }
         }
     }
 
     fun equipment(living: LivingEntity): List<PacketContainer> {
-        return living.run {
-            val slots = EquipmentSlot.values()
-            val packets = ArrayList<PacketContainer>(slots.count())
+        if (MinecraftVersion.atOrAbove(NETHER_UPDATE)) {
+            throw UnsupportedOperationException("ProtocolLib 4.6.0 in development")
+        } else {
+            return living.run {
+                val slots = EquipmentSlot.values()
+                val packets = ArrayList<PacketContainer>(slots.count())
 
-            if (this is ArmorStand) {
-                for (slot in slots) {
-                    packets += equipment(entityId, slot, getItem(slot))
-                }
-            } else {
-                living.equipment?.also { equipment ->
+                if (this is ArmorStand) {
                     for (slot in slots) {
-                        val item = when (slot) {
-                            EquipmentSlot.HAND -> equipment.itemInMainHand
-                            EquipmentSlot.OFF_HAND -> equipment.itemInOffHand
-                            EquipmentSlot.FEET -> equipment.boots
-                            EquipmentSlot.LEGS -> equipment.leggings
-                            EquipmentSlot.CHEST -> equipment.chestplate
-                            EquipmentSlot.HEAD -> equipment.helmet
-                        }
+                        packets += equipment(entityId, slot, getItem(slot))
+                    }
+                } else {
+                    living.equipment?.also { equipment ->
+                        for (slot in slots) {
+                            val item = when (slot) {
+                                EquipmentSlot.HAND -> equipment.itemInMainHand
+                                EquipmentSlot.OFF_HAND -> equipment.itemInOffHand
+                                EquipmentSlot.FEET -> equipment.boots
+                                EquipmentSlot.LEGS -> equipment.leggings
+                                EquipmentSlot.CHEST -> equipment.chestplate
+                                EquipmentSlot.HEAD -> equipment.helmet
+                            }
 
-                        if (item != null)
-                            packets += equipment(entityId, slot, item)
+                            if (item != null)
+                                packets += equipment(entityId, slot, item)
+                        }
                     }
                 }
+                packets
             }
-            packets
         }
     }
 
@@ -167,16 +177,16 @@ class EntityPacketSupport {
         return PacketContainer(PacketType.Play.Server.REL_ENTITY_MOVE).apply {
             integers
                 .write(0, entityId)
-            if (nmsVersion < 14) {
-                integers
-                    .write(0, deltaX.toInt())
-                    .write(1, deltaY.toInt())
-                    .write(2, deltaZ.toInt())
-            } else {
+            if (MinecraftVersion.atOrAbove(MinecraftVersion.VILLAGE_UPDATE)) {
                 shorts
                     .write(0, deltaX)
                     .write(1, deltaY)
                     .write(2, deltaZ)
+            } else {
+                integers
+                    .write(1, deltaX.toInt())
+                    .write(2, deltaY.toInt())
+                    .write(3, deltaZ.toInt())
             }
             booleans
                 .write(0, onGround)
@@ -218,16 +228,16 @@ class EntityPacketSupport {
         return PacketContainer(PacketType.Play.Server.REL_ENTITY_MOVE_LOOK).apply {
             integers
                 .write(0, entityId)
-            if (nmsVersion < 14) {
-                integers
-                    .write(0, deltaX.toInt())
-                    .write(1, deltaY.toInt())
-                    .write(2, deltaZ.toInt())
-            } else {
+            if (MinecraftVersion.atOrAbove(MinecraftVersion.VILLAGE_UPDATE)) {
                 shorts
                     .write(0, deltaX)
                     .write(1, deltaY)
                     .write(2, deltaZ)
+            } else {
+                integers
+                    .write(1, deltaX.toInt())
+                    .write(2, deltaY.toInt())
+                    .write(3, deltaZ.toInt())
             }
             bytes
                 .write(0, (yaw * 256.0 / 360.0).toByte())
@@ -306,6 +316,3 @@ class EffectPacketSupport {
         }
     }
 }
-
-private val nmsVersion: Int
-    get() = LibraryLoader.getBukkitVersion().split("_")[1].toInt()
