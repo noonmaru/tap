@@ -105,12 +105,10 @@ subprojects {
 }
 
 project(":api") {
-    urlDependency("https://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/artifact/target/ProtocolLib.jar", "ProtocolLib.jar")
-
     dependencies {
         compileOnly(files(Jvm.current().toolsJar))
         compileOnly("com.destroystokyo.paper:paper-api:1.13.2-R0.1-SNAPSHOT")
-        compileOnly(files(File("libs", "ProtocolLib.jar").toURI()))
+        compileOnly(urlDependency("https://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/artifact/target/ProtocolLib.jar", "ProtocolLib.jar"))
         implementation("it.unimi.dsi:fastutil:8.3.1")
     }
 
@@ -147,7 +145,7 @@ if (!hasProperty("debug")) {
     }
 }
 
-fun urlDependency(url: String, name: String) {
+fun urlDependency(url: String, name: String): ConfigurableFileCollection {
     File("libs").mkdir()
     val jar = File("libs", name)
     val date = File("libs", "${name}.log").apply {
@@ -164,4 +162,5 @@ fun urlDependency(url: String, name: String) {
             }
         }
     }
+    return files(jar.toURI())
 }
