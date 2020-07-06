@@ -20,22 +20,23 @@ import com.comphenix.protocol.PacketType
 import com.comphenix.protocol.events.PacketContainer
 import com.comphenix.protocol.utility.MinecraftVersion
 import com.comphenix.protocol.wrappers.EnumWrappers
+import com.comphenix.protocol.wrappers.Pair
 import com.comphenix.protocol.wrappers.WrappedDataWatcher
 import com.github.noonmaru.tap.fake.createFakeEntity
 import org.bukkit.FireworkEffect
 import org.bukkit.Location
 import org.bukkit.entity.*
+import org.bukkit.inventory.EntityEquipment
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
 import org.bukkit.util.Vector
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 val EntityPacket = EntityPacketSupport()
 
 val EffectPacket = EffectPacketSupport()
-
-private val NETHER_UPDATE = MinecraftVersion("1.16")
 
 class EntityPacketSupport {
 
@@ -85,12 +86,13 @@ class EntityPacketSupport {
     }
 
     fun equipment(entityId: Int, slot: EquipmentSlot, item: ItemStack): PacketContainer {
-        if (MinecraftVersion.atOrAbove(NETHER_UPDATE)) {
-            throw UnsupportedOperationException("ProtocolLib 4.6.0 in development")
-        } else {
-            return PacketContainer(PacketType.Play.Server.ENTITY_EQUIPMENT).apply {
-                integers
-                    .write(0, entityId)
+        return PacketContainer(PacketType.Play.Server.ENTITY_EQUIPMENT).apply {
+            integers
+                .write(0, entityId)
+            if (MinecraftVersion.atOrAbove(MinecraftVersion.NETHER_UPDATE)) {
+                slotStackPairLists
+                    .write(0, listOf(Pair(slot.convertToItemSlot(), item)))
+            } else {
                 itemSlots
                     .write(0, slot.convertToItemSlot())
                 itemModifier
@@ -100,11 +102,31 @@ class EntityPacketSupport {
     }
 
     fun equipment(living: LivingEntity): List<PacketContainer> {
-        if (MinecraftVersion.atOrAbove(NETHER_UPDATE)) {
-            throw UnsupportedOperationException("ProtocolLib 4.6.0 in development")
-        } else {
-            return living.run {
-                val slots = EquipmentSlot.values()
+        return living.run {
+            val slots = EquipmentSlot.values()
+            if (MinecraftVersion.atOrAbove(MinecraftVersion.NETHER_UPDATE)) {
+                val pairs = ArrayList<Pair<EnumWrappers.ItemSlot, ItemStack>>(slots.count())
+
+                if (this is ArmorStand) {
+                    for (slot in slots) {
+                        pairs += Pair(slot.convertToItemSlot(), getItem(slot))
+                    }
+                } else {
+                    living.equipment?.apply {
+                        for (slot in slots) {
+                            getItem(slot)?.let {
+                                pairs += Pair(slot.convertToItemSlot(), it)
+                            }
+                        }
+                    }
+                }
+                listOf(PacketContainer(PacketType.Play.Server.ENTITY_EQUIPMENT).apply {
+                    integers
+                        .write(0, entityId)
+                    slotStackPairLists
+                        .write(0, pairs)
+                })
+            } else {
                 val packets = ArrayList<PacketContainer>(slots.count())
 
                 if (this is ArmorStand) {
@@ -112,19 +134,11 @@ class EntityPacketSupport {
                         packets += equipment(entityId, slot, getItem(slot))
                     }
                 } else {
-                    living.equipment?.also { equipment ->
+                    living.equipment?.apply {
                         for (slot in slots) {
-                            val item = when (slot) {
-                                EquipmentSlot.HAND -> equipment.itemInMainHand
-                                EquipmentSlot.OFF_HAND -> equipment.itemInOffHand
-                                EquipmentSlot.FEET -> equipment.boots
-                                EquipmentSlot.LEGS -> equipment.leggings
-                                EquipmentSlot.CHEST -> equipment.chestplate
-                                EquipmentSlot.HEAD -> equipment.helmet
+                            getItem(slot)?.let {
+                                packets += equipment(entityId, slot, it)
                             }
-
-                            if (item != null)
-                                packets += equipment(entityId, slot, item)
                         }
                     }
                 }
@@ -282,6 +296,17 @@ private fun EquipmentSlot.convertToItemSlot(): EnumWrappers.ItemSlot {
         EquipmentSlot.LEGS -> EnumWrappers.ItemSlot.LEGS
         EquipmentSlot.CHEST -> EnumWrappers.ItemSlot.CHEST
         EquipmentSlot.HEAD -> EnumWrappers.ItemSlot.HEAD
+    }
+}
+
+private fun EntityEquipment.getItem(slot: EquipmentSlot): ItemStack? {
+    return when (slot) {
+        EquipmentSlot.HAND -> itemInMainHand
+        EquipmentSlot.OFF_HAND -> itemInOffHand
+        EquipmentSlot.FEET -> boots
+        EquipmentSlot.LEGS -> leggings
+        EquipmentSlot.CHEST -> chestplate
+        EquipmentSlot.HEAD -> helmet
     }
 }
 

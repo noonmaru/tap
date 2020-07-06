@@ -15,6 +15,12 @@
  */
 
 import org.gradle.internal.jvm.Jvm
+import java.net.HttpURLConnection
+import java.net.URL
+import java.nio.file.StandardCopyOption
+import java.nio.file.StandardOpenOption
+import java.nio.file.Files
+import java.nio.file.Paths
 
 plugins {
     id("com.github.johnrengelman.shadow") version "5.2.0"
@@ -99,14 +105,12 @@ subprojects {
 }
 
 project(":api") {
-    repositories {
-        maven(url = "https://repo.dmulloy2.net/nexus/repository/public/") //ProtocolLib
-    }
+    urlDependency("https://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/artifact/target/ProtocolLib.jar", "ProtocolLib.jar")
 
     dependencies {
         compileOnly(files(Jvm.current().toolsJar))
         compileOnly("com.destroystokyo.paper:paper-api:1.13.2-R0.1-SNAPSHOT")
-        compileOnly("com.comphenix.protocol:ProtocolLib:4.5.1")
+        compileOnly(files(File("libs", "ProtocolLib.jar").toURI()))
         implementation("it.unimi.dsi:fastutil:8.3.1")
     }
 
@@ -139,6 +143,25 @@ if (!hasProperty("debug")) {
     tasks {
         shadowJar {
             relocate("it.unimi.dsi", "com.github.noonmaru.tap.internal.it.unimi.dsi")
+        }
+    }
+}
+
+fun urlDependency(url: String, name: String) {
+    File("libs").mkdir()
+    val jar = File("libs", name)
+    val date = File("libs", "${name}.log").apply {
+        if (!exists()) {
+            createNewFile()
+        }
+    }
+    (URL(url).openConnection() as HttpURLConnection).run {
+        val lastModified = getHeaderField("Last-Modified")
+        if (lastModified != String(date.readBytes())) {
+            inputStream.use {
+                Files.copy(it, Paths.get(jar.toURI()), StandardCopyOption.REPLACE_EXISTING)
+                Files.write(Paths.get(date.toURI()), lastModified.toByteArray(), StandardOpenOption.WRITE)
+            }
         }
     }
 }

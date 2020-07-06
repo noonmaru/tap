@@ -16,6 +16,7 @@
 
 package com.github.noonmaru.tap
 
+import com.comphenix.protocol.utility.MinecraftVersion
 import com.github.noonmaru.tap.attach.Tools
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -25,5 +26,14 @@ import org.bukkit.plugin.java.JavaPlugin
 class TapPlugin : JavaPlugin() {
     override fun onEnable() {
         Tools.loadAttachLibrary(dataFolder)
+
+        try {
+            MinecraftVersion::class.java.getDeclaredField("NETHER_UPDATE")
+        } catch (exception: NoSuchFieldException) {
+            if (MinecraftVersion.getCurrentVersion().minor > 15) {
+                throw UnsupportedOperationException("If you are using 1.16 or later, please use the latest" +
+                        " ProtocolLib snapshot build from: https://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/")
+            }
+        }
     }
 }
