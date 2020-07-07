@@ -108,7 +108,7 @@ project(":api") {
     dependencies {
         compileOnly(files(Jvm.current().toolsJar))
         compileOnly("com.destroystokyo.paper:paper-api:1.13.2-R0.1-SNAPSHOT")
-        compileOnly(urlDependency("https://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/artifact/target/ProtocolLib.jar", "ProtocolLib.jar"))
+        compileOnlyUrl("https://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/artifact/target/ProtocolLib.jar", "ProtocolLib.jar")
         implementation("it.unimi.dsi:fastutil:8.3.1")
     }
 
@@ -145,7 +145,7 @@ if (!hasProperty("debug")) {
     }
 }
 
-fun urlDependency(url: String, name: String): ConfigurableFileCollection {
+fun DependencyHandlerScope.compileOnlyUrl(url: String, name: String): Dependency? {
     File("libs").mkdir()
     val jar = File("libs", name)
     val date = File("libs", "${name}.log").apply {
@@ -162,5 +162,5 @@ fun urlDependency(url: String, name: String): ConfigurableFileCollection {
             }
         }
     }
-    return files(jar.toURI())
+    return compileOnly(files(jar.toURI()))
 }

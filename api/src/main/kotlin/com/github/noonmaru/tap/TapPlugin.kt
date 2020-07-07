@@ -28,8 +28,8 @@ class TapPlugin : JavaPlugin() {
         Tools.loadAttachLibrary(dataFolder)
 
         try {
-            MinecraftVersion::class.java.getDeclaredField("NETHER_UPDATE")
-        } catch (exception: NoSuchFieldException) {
+            classLoader.loadClass("com.comphenix.protocol.wrappers.Pair")
+        } catch (exception: ClassNotFoundException) {
             if (MinecraftVersion.getCurrentVersion().minor > 15) {
                 throw UnsupportedOperationException("If you are using 1.16 or later, please use the latest" +
                         " ProtocolLib snapshot build from: https://ci.dmulloy2.net/job/ProtocolLib/lastSuccessfulBuild/")
