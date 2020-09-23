@@ -20,6 +20,7 @@ import com.github.noonmaru.tap.fake.FakeEntity
 import com.github.noonmaru.tap.fake.createSpawnPacket
 import com.github.noonmaru.tap.fake.mountedYOffset
 import com.github.noonmaru.tap.fake.setLocation
+import com.github.noonmaru.tap.item.getItem
 import com.github.noonmaru.tap.protocol.Packet
 import com.github.noonmaru.tap.protocol.sendServerPacket
 import com.github.noonmaru.tap.ref.UpstreamReference

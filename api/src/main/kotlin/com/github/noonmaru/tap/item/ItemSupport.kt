@@ -17,6 +17,7 @@
 package com.github.noonmaru.tap.item
 
 import com.github.noonmaru.tap.loader.LibraryLoader
+import org.bukkit.entity.ArmorStand
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.PlayerInventory
@@ -33,6 +34,10 @@ interface ItemSupport {
     fun damageSlot(playerInventory: PlayerInventory, slot: EquipmentSlot, damage: Int) {
         error("Unsupported nms version")
     }
+
+    fun getItem(armorStand: ArmorStand, slot: EquipmentSlot): ItemStack {
+        error("Unsupported nms version")
+    }
 }
 
 private val NMS = LibraryLoader.load(ItemSupport::class.java)
@@ -47,4 +52,8 @@ fun PlayerInventory.damageArmor(attackDamage: Double) {
 
 fun PlayerInventory.damageSlot(slot: EquipmentSlot, damage: Int = 1) {
     NMS.damageSlot(this, slot, damage)
+}
+
+fun ArmorStand.getItem(slot: EquipmentSlot): ItemStack {
+    return NMS.getItem(this, slot)
 }

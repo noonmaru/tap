@@ -21,7 +21,9 @@ import org.bukkit.util.Vector
 
 fun Location.copy(other: Location) {
     world = other.world
-    set(other.x, other.y, other.z)
+    x = other.x
+    y = other.y
+    z = other.z
     yaw = other.yaw
     pitch = other.pitch
 }
