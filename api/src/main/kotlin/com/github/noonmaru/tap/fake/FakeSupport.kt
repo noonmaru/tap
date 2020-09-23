@@ -17,10 +17,10 @@
 package com.github.noonmaru.tap.fake
 
 import com.comphenix.protocol.events.PacketContainer
+import com.comphenix.protocol.wrappers.WrappedBlockData
 import com.github.noonmaru.tap.loader.LibraryLoader
 import org.bukkit.Location
 import org.bukkit.World
-import org.bukkit.block.data.BlockData
 import org.bukkit.entity.Entity
 import org.bukkit.entity.FallingBlock
 
@@ -45,7 +45,7 @@ interface FakeSupport {
 
     fun createSpawnPacket(entity: Entity): Any
 
-    fun createFallingBlock(blockData: BlockData): FallingBlock
+    fun createFallingBlock(blockData: WrappedBlockData): FallingBlock
 }
 
 internal val FakeSupportNMS = LibraryLoader.load(FakeSupport::class.java)
@@ -79,6 +79,6 @@ fun Entity.createSpawnPacket(): PacketContainer {
     return PacketContainer.fromPacket(FakeSupportNMS.createSpawnPacket(this))
 }
 
-fun createFallingBlock(blockData: BlockData): FallingBlock {
+fun createFallingBlock(blockData: WrappedBlockData): FallingBlock {
     return FakeSupportNMS.createFallingBlock(blockData)
 }

@@ -76,9 +76,9 @@ subprojects {
     if (path in setOf(":api", ":paper")) {
         // setup api & test plugin
         dependencies {
-            compileOnly("com.destroystokyo.paper:paper-api:1.13.2-R0.1-SNAPSHOT")
+            compileOnly("com.destroystokyo.paper:paper-api:1.12.2-R0.1-SNAPSHOT")
 
-            testImplementation("com.destroystokyo.paper:paper-api:1.13.2-R0.1-SNAPSHOT")
+            testImplementation("com.destroystokyo.paper:paper-api:1.12.2-R0.1-SNAPSHOT")
         }
     } else {
         //setup nms

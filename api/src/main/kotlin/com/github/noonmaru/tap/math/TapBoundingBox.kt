@@ -17,17 +17,17 @@
 package com.github.noonmaru.tap.math
 
 import org.bukkit.Location
-import org.bukkit.util.Vector
 
-fun Location.copy(other: Location) {
-    world = other.world
-    x = other.x
-    y = other.y
-    z = other.z
-    yaw = other.yaw
-    pitch = other.pitch
-}
+@Suppress("MemberVisibilityCanBePrivate")
+class TapBoundingBox(val center: Location, val x: Double, val y: Double, val z: Double) {
+    val minX = center.x - x
+    val minY = center.y - y
+    val minZ = center.z - z
+    val maxX = center.x + x
+    val maxY = center.y + y
+    val maxZ = center.z + z
 
-infix fun Location.vector(target: Location): Vector {
-    return Vector(target.x - x, target.y - y, target.z - z)
+    fun contains(x: Double, y: Double, z: Double): Boolean {
+        return x in minX..maxX && y in minY..maxY && z in minZ..maxZ
+    }
 }

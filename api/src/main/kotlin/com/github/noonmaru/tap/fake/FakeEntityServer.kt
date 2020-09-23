@@ -16,9 +16,9 @@
 
 package com.github.noonmaru.tap.fake
 
+import com.comphenix.protocol.wrappers.WrappedBlockData
 import com.github.noonmaru.tap.fake.internal.FakeEntityServerImpl
 import org.bukkit.Location
-import org.bukkit.block.data.BlockData
 import org.bukkit.entity.Entity
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
@@ -34,7 +34,7 @@ interface FakeEntityServer {
 
     fun spawnEntity(location: Location, clazz: Class<out Entity>): FakeEntity
 
-    fun spawnFallingBlock(location: Location, blockData: BlockData): FakeEntity
+    fun spawnFallingBlock(location: Location, blockData: WrappedBlockData): FakeEntity
 
     fun addPlayer(player: Player)
 

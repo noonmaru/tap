@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package com.github.noonmaru.tap.v1_16_R2.item
+package com.github.noonmaru.tap.v1_13_R1.item
 
 import com.github.noonmaru.tap.item.ItemSupport
-import net.minecraft.server.v1_16_R2.DamageSource
-import net.minecraft.server.v1_16_R2.ItemStack
-import net.minecraft.server.v1_16_R2.NBTTagCompound
-import net.minecraft.server.v1_16_R2.PlayerInventory
-import org.bukkit.craftbukkit.v1_16_R2.CraftEquipmentSlot
-import org.bukkit.craftbukkit.v1_16_R2.entity.CraftArmorStand
-import org.bukkit.craftbukkit.v1_16_R2.entity.CraftPlayer
-import org.bukkit.craftbukkit.v1_16_R2.inventory.CraftInventoryPlayer
-import org.bukkit.craftbukkit.v1_16_R2.inventory.CraftItemStack
+import net.minecraft.server.v1_13_R1.ItemStack
+import net.minecraft.server.v1_13_R1.NBTTagCompound
+import net.minecraft.server.v1_13_R1.PlayerInventory
+import org.bukkit.craftbukkit.v1_13_R1.CraftEquipmentSlot
+import org.bukkit.craftbukkit.v1_13_R1.entity.CraftArmorStand
+import org.bukkit.craftbukkit.v1_13_R1.entity.CraftPlayer
+import org.bukkit.craftbukkit.v1_13_R1.inventory.CraftInventoryPlayer
+import org.bukkit.craftbukkit.v1_13_R1.inventory.CraftItemStack
 import org.bukkit.entity.ArmorStand
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack as BukkitItemStack
@@ -40,18 +39,15 @@ class NMSItemSupport : ItemSupport {
     override fun damageArmor(playerInventory: BukkitPlayerInventory, attackDamage: Double) {
         val nmsInventory = (playerInventory as CraftInventoryPlayer).inventory
 
-        nmsInventory.a(DamageSource.LAVA, attackDamage.toFloat())
+        nmsInventory.a(attackDamage.toFloat())
     }
 
     override fun damageSlot(playerInventory: BukkitPlayerInventory, slot: EquipmentSlot, damage: Int) {
         val nmsInventory = (playerInventory as CraftInventoryPlayer).inventory
-        val nmsSlot = CraftEquipmentSlot.getNMS(slot)
         val nmsItem = nmsInventory.getItem(slot)
 
         if (!nmsItem.isEmpty) {
-            nmsItem.damage(damage, (playerInventory.holder as CraftPlayer).handle) { player ->
-                player.broadcastItemBreak(nmsSlot)
-            }
+            nmsItem.damage(damage, (playerInventory.holder as CraftPlayer).handle)
         }
     }
 

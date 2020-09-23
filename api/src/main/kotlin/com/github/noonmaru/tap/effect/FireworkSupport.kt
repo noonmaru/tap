@@ -16,13 +16,12 @@
 
 package com.github.noonmaru.tap.effect
 
+import com.github.noonmaru.tap.math.TapBoundingBox
 import com.github.noonmaru.tap.protocol.Packet
 import com.github.noonmaru.tap.protocol.sendServerPacket
 import org.bukkit.FireworkEffect
 import org.bukkit.Location
-import org.bukkit.World
 import org.bukkit.entity.Player
-import org.bukkit.util.BoundingBox
 
 fun Player.playFirework(loc: Location, effect: FireworkEffect) {
     Packet.spawnFireworkParticles(loc, effect).forEach { packet ->
@@ -30,11 +29,11 @@ fun Player.playFirework(loc: Location, effect: FireworkEffect) {
     }
 }
 
-fun World.playFirework(loc: Location, effect: FireworkEffect, distance: Double = 128.0) {
+fun playFirework(loc: Location, effect: FireworkEffect, distance: Double = 128.0) {
     val packets = Packet.spawnFireworkParticles(loc, effect)
 
     val world = loc.world
-    val box = BoundingBox.of(loc, distance, distance, distance)
+    val box = TapBoundingBox(loc, distance, distance, distance)
 
     world.players.forEach { player ->
         val playerLoc = player.location

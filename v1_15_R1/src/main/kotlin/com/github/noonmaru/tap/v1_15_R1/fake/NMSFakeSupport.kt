@@ -16,15 +16,15 @@
 
 package com.github.noonmaru.tap.v1_15_R1.fake
 
+import com.comphenix.protocol.wrappers.WrappedBlockData
 import com.github.noonmaru.tap.fake.FakeSupport
 import net.minecraft.server.v1_15_R1.EntityFallingBlock
+import net.minecraft.server.v1_15_R1.IBlockData
 import net.minecraft.server.v1_15_R1.IRegistry
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.World
-import org.bukkit.block.data.BlockData
 import org.bukkit.craftbukkit.v1_15_R1.CraftWorld
-import org.bukkit.craftbukkit.v1_15_R1.block.data.CraftBlockData
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftEntity
 import org.bukkit.entity.Entity
 import org.bukkit.entity.FallingBlock
@@ -93,14 +93,14 @@ class NMSFakeSupport : FakeSupport {
         return entity.handle.L()
     }
 
-    override fun createFallingBlock(blockData: BlockData): FallingBlock {
+    override fun createFallingBlock(blockData: WrappedBlockData): FallingBlock {
         val entity =
             EntityFallingBlock(
                 (Bukkit.getWorlds().first() as CraftWorld).handle,
                 0.0,
                 0.0,
                 0.0,
-                (blockData as CraftBlockData).state
+                blockData.handle as IBlockData
             )
         entity.ticksLived = 1
 

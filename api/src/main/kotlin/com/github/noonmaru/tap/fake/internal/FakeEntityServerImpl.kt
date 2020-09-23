@@ -16,11 +16,11 @@
 
 package com.github.noonmaru.tap.fake.internal
 
+import com.comphenix.protocol.wrappers.WrappedBlockData
 import com.github.noonmaru.tap.fake.*
 import com.google.common.collect.ImmutableList
 import org.bukkit.Bukkit
 import org.bukkit.Location
-import org.bukkit.block.data.BlockData
 import org.bukkit.entity.Entity
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -56,7 +56,7 @@ class FakeEntityServerImpl(plugin: JavaPlugin) : FakeEntityServer {
     override fun spawnEntity(location: Location, clazz: Class<out Entity>): FakeEntity {
         checkState()
 
-        val bukkitWorld = location.world
+        val bukkitWorld = requireNotNull(location.world)
         val bukkitEntity = requireNotNull(clazz.createFakeEntity(bukkitWorld)) {
             "Cannot create entity $clazz"
         }.apply {
@@ -70,7 +70,7 @@ class FakeEntityServerImpl(plugin: JavaPlugin) : FakeEntityServer {
         return fakeEntity
     }
 
-    override fun spawnFallingBlock(location: Location, blockData: BlockData): FakeEntity {
+    override fun spawnFallingBlock(location: Location, blockData: WrappedBlockData): FakeEntity {
         val bukkitFallingBlock = createFallingBlock(blockData)
         val fakeEntity = FakeEntityImpl(this, bukkitFallingBlock, location)
         _entities += fakeEntity

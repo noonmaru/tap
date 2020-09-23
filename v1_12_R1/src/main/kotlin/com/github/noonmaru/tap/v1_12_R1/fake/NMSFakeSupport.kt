@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package com.github.noonmaru.tap.v1_13_R2.fake
+package com.github.noonmaru.tap.v1_12_R1.fake
 
 import com.comphenix.protocol.wrappers.WrappedBlockData
 import com.github.noonmaru.tap.fake.FakeSupport
-import net.minecraft.server.v1_13_R2.*
+import net.minecraft.server.v1_12_R1.*
 import org.bukkit.Bukkit
 import org.bukkit.Location
-import org.bukkit.craftbukkit.v1_13_R2.CraftWorld
-import org.bukkit.craftbukkit.v1_13_R2.entity.CraftEntity
+import org.bukkit.craftbukkit.v1_12_R1.CraftWorld
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftEntity
 import org.bukkit.entity.FallingBlock
 import org.bukkit.entity.Entity as BukkitEntity
 
@@ -35,7 +35,7 @@ class NMSFakeSupport : FakeSupport {
     override fun getNetworkId(entity: BukkitEntity): Int {
         entity as CraftEntity
 
-        return IRegistry.ENTITY_TYPE.a(entity.handle.P())
+        return EntityTypes.b.a(entity.handle.javaClass)
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -43,9 +43,9 @@ class NMSFakeSupport : FakeSupport {
         entityClass: Class<out org.bukkit.entity.Entity>,
         world: org.bukkit.World
     ): T? {
-        return NMSEntityTypes.findType(entityClass)?.run {
+        return NMSEntityTypes.findType(entityClass).run {
             val nmsWorld = (world as CraftWorld).handle
-            this.a(nmsWorld)?.bukkitEntity as T
+            EntityTypes.a(this, nmsWorld)?.bukkitEntity as T
         }
     }
 
@@ -86,17 +86,17 @@ class NMSFakeSupport : FakeSupport {
     override fun getMountedYOffset(entity: BukkitEntity): Double {
         entity as CraftEntity
 
-        return entity.handle.aJ()
+        return entity.handle.aG()
     }
 
     override fun getYOffset(entity: BukkitEntity): Double {
         entity as CraftEntity
 
-        return entity.handle.aI()
+        return entity.handle.aF()
     }
 
 
-    //code from EntityTrackerEntry.class 412 private Packet<?> e()
+    //code from EntityTrackerEntry.class 411 private Packet<?> e()
     override fun createSpawnPacket(entity: BukkitEntity): Any {
         entity as CraftEntity
 
@@ -124,26 +124,22 @@ class NMSFakeSupport : FakeSupport {
                 PacketPlayOutSpawnEntityExperienceOrb(handle as EntityExperienceOrb?)
             }
             is EntityFishingHook -> {
-                val entityhuman: EntityHuman? = handle.i()
+                val entityhuman: EntityHuman? = handle.l()
                 PacketPlayOutSpawnEntity(handle, 90,entityhuman?.id ?: handle.getId())
             }
             else -> {
                 val shooter: Entity?
                 when (handle) {
                     is EntitySpectralArrow -> {
-                        shooter = handle.getShooter()
+                        shooter = handle.shooter
                         PacketPlayOutSpawnEntity(handle, 91, 1 + (shooter?.id ?: handle.getId()))
                     }
                     is EntityTippedArrow -> {
-                        shooter = (handle as EntityArrow).getShooter()
+                        shooter = (handle as EntityArrow).shooter
                         PacketPlayOutSpawnEntity(handle, 60, 1 + (shooter?.id ?: handle.getId()))
                     }
                     is EntitySnowball -> {
                         PacketPlayOutSpawnEntity(handle, 61)
-                    }
-                    is EntityThrownTrident -> {
-                        shooter = (handle as EntityArrow).getShooter()
-                        PacketPlayOutSpawnEntity(handle, 94, 1 + (shooter?.id ?: handle.getId()))
                     }
                     is EntityLlamaSpit -> {
                         PacketPlayOutSpawnEntity(handle, 68)

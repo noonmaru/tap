@@ -14,20 +14,6 @@
  * limitations under the License.
  */
 
-package com.github.noonmaru.tap.math
-
-import org.bukkit.Location
-import org.bukkit.util.Vector
-
-fun Location.copy(other: Location) {
-    world = other.world
-    x = other.x
-    y = other.y
-    z = other.z
-    yaw = other.yaw
-    pitch = other.pitch
-}
-
-infix fun Location.vector(target: Location): Vector {
-    return Vector(target.x - x, target.y - y, target.z - z)
+dependencies {
+    compileOnly("org.spigotmc:spigot:1.12.2-R0.1-SNAPSHOT")
 }

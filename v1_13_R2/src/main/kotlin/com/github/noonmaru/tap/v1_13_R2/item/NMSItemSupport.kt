@@ -20,9 +20,12 @@ import com.github.noonmaru.tap.item.ItemSupport
 import net.minecraft.server.v1_13_R2.ItemStack
 import net.minecraft.server.v1_13_R2.NBTTagCompound
 import net.minecraft.server.v1_13_R2.PlayerInventory
+import org.bukkit.craftbukkit.v1_13_R2.CraftEquipmentSlot
+import org.bukkit.craftbukkit.v1_13_R2.entity.CraftArmorStand
 import org.bukkit.craftbukkit.v1_13_R2.entity.CraftPlayer
 import org.bukkit.craftbukkit.v1_13_R2.inventory.CraftInventoryPlayer
 import org.bukkit.craftbukkit.v1_13_R2.inventory.CraftItemStack
+import org.bukkit.entity.ArmorStand
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack as BukkitItemStack
 import org.bukkit.inventory.PlayerInventory as BukkitPlayerInventory
@@ -46,6 +49,12 @@ class NMSItemSupport : ItemSupport {
         if (!nmsItem.isEmpty) {
             nmsItem.damage(damage, (playerInventory.holder as CraftPlayer).handle)
         }
+    }
+
+    override fun getItem(armorStand: ArmorStand, slot: EquipmentSlot): BukkitItemStack {
+        val handle = (armorStand as CraftArmorStand).handle
+
+        return CraftItemStack.asBukkitCopy(handle.getEquipment(CraftEquipmentSlot.getNMS(slot)))
     }
 }
 

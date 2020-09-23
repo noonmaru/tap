@@ -22,9 +22,11 @@ import net.minecraft.server.v1_16_R1.ItemStack
 import net.minecraft.server.v1_16_R1.NBTTagCompound
 import net.minecraft.server.v1_16_R1.PlayerInventory
 import org.bukkit.craftbukkit.v1_16_R1.CraftEquipmentSlot
+import org.bukkit.craftbukkit.v1_16_R1.entity.CraftArmorStand
 import org.bukkit.craftbukkit.v1_16_R1.entity.CraftPlayer
 import org.bukkit.craftbukkit.v1_16_R1.inventory.CraftInventoryPlayer
 import org.bukkit.craftbukkit.v1_16_R1.inventory.CraftItemStack
+import org.bukkit.entity.ArmorStand
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack as BukkitItemStack
 import org.bukkit.inventory.PlayerInventory as BukkitPlayerInventory
@@ -51,6 +53,12 @@ class NMSItemSupport : ItemSupport {
                 player.broadcastItemBreak(nmsSlot)
             }
         }
+    }
+
+    override fun getItem(armorStand: ArmorStand, slot: EquipmentSlot): BukkitItemStack {
+        val handle = (armorStand as CraftArmorStand).handle
+
+        return CraftItemStack.asBukkitCopy(handle.getEquipment(CraftEquipmentSlot.getNMS(slot)))
     }
 }
 
